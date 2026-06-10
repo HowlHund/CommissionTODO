@@ -6,6 +6,15 @@ defmodule Todo.Commissions do
     Repo.all(Commission)
   end
 
+  def fetch_commission(id) do
+    case Repo.get(Commission, id) do
+      %Commission{} = commission ->
+        {:ok, commission}
+      nil ->
+        {:error, :not_found}
+    end
+  end
+
   def get_commission!(id) do # this gets a single comm by it's uuid. ! means it will throw an error if it can't find one
     Repo.get!(Commission, id)
   end

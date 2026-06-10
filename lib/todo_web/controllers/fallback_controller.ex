@@ -1,6 +1,5 @@
 defmodule TodoWeb.FallbackController do
-
-  use Phoenix.Controller
+  use TodoWeb, :controller
 
   def call(conn, {:error, :not_found}) do
     conn

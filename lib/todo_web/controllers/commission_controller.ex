@@ -11,10 +11,14 @@ defmodule TodoWeb.CommissionController do
   end
 
   def show(conn, params) do
-  commission = Commissions.get_commission!(params["id"])
-  json(conn, commission)
-  rescue
-  Ecto.NoResultsError -> {:error, :not_found}
+    case Commissions.fetch_commission(params["id"]) do
+    {:ok, commission} ->
+      json(conn, commission)
+    {:error, :not_found} ->
+      conn
+      |> put_status(:not_found)
+      |> json(%{error: "not found"})
+    end
   end
 
 
@@ -32,25 +36,26 @@ defmodule TodoWeb.CommissionController do
   end
 
   def update(conn, params) do
-    case Commissions.update_commission(Commissions.get_commission!(params["id"]), params) do
-      {:ok, commission} ->
-        conn
-        |> put_status(:ok)
-        |> json(commission)
+    with {:ok, commission} <- Commissions.fetch_commission(params["id"]),
+         {:ok, updated} <- Commissions.update_commission(commission, params) do
+      json(conn, updated)
+    else
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not found"})
       {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
     end
   end
 
   def delete(conn, params) do
-    case Commissions.delete_commission(Commissions.get_commission!(params["id"])) do
-      {:ok, _commission} -> send_resp(conn, :no_content, "")
+    with {:ok, commission} <- Commissions.fetch_commission(params["id"]),
+        {:ok, _deleted} <- Commissions.delete_commission(commission) do
+      send_resp(conn, :no_content, "")
+    else
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not found"})
       {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+        conn |> put_status(:unprocessable_entity) |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
     end
   end
 end
