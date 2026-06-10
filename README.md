@@ -60,13 +60,13 @@ Pure REST JSON API — no HTML, no frontend.
 > Concepts: Ecto migrations, schemas, changesets, contexts
 
 ### Phase 3 — API layer
-- [ ] Add routes to `router.ex`
-- [ ] Write a `TodoController` with all 5 actions
-- [ ] Wire each action to a context function
-- [ ] Return proper JSON responses
+- [x] Add routes to `router.ex`
+- [x] Write a `TodoController` with all 5 actions
+- [x] Wire each action to a context function
+- [x] Return proper JSON responses
 
 > Concepts: Phoenix router, controllers, JSON responses, HTTP status codes
 
 ### Phase 4 — Smoke test
-- [ ] Test all endpoints with `curl` or a REST client
-- [ ] Handle the unhappy paths (missing record, bad input)
+- [x] Test all endpoints with `curl` or a REST client
+- [x] Handle the unhappy paths (missing record, bad input)
