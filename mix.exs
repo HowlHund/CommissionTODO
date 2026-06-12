@@ -49,7 +49,8 @@ defmodule Todo.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:mimic, "~> 1.7", only: :test}
     ]
   end
 
