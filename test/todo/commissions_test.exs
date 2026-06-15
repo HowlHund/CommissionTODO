@@ -7,15 +7,23 @@ defmodule Todo.CommissionsTest do
   describe "list_commissions/0" do
     test "returns all commissions" do
       {:ok, _commission} = Repo.insert(%Commission{
-        customer: "test_user",
+        customer: "test_user1",
+        type: "full_body",
+        status: "sketching",
+        deadline: ~U[2026-12-31 00:00:00Z]
+      })
+      {:ok, _commission} = Repo.insert(%Commission{
+        customer: "test_user2",
         type: "full_body",
         status: "sketching",
         deadline: ~U[2026-12-31 00:00:00Z]
       })
 
     result = Commissions.list_commissions()
-    assert length(result) == 1
-    assert hd(result).customer == "test_user"
+    assert length(result) == 2
+    customers = Enum.map(result, & &1.customer)
+    assert "test_user1" in customers
+    assert "test_user2" in customers
     end
   end
 
@@ -28,7 +36,11 @@ defmodule Todo.CommissionsTest do
         deadline: ~U[2026-12-31 00:00:00Z]
       })
       result = Commissions.fetch_commission(commission.id)
-      assert {:ok, %Commission{customer: "test_user"}} = result
+      assert {:ok, %Commission{} = c} = result
+      assert c.customer == commission.customer
+      assert c.type == commission.type
+      assert c.status == commission.status
+      assert c.deadline == commission.deadline
     end
   end
 
@@ -47,16 +59,43 @@ defmodule Todo.CommissionsTest do
         status: "sketching",
         deadline: ~U[2026-12-31 00:00:00Z]
       }
-      assert {:ok, %Commission{customer: "test_user"}} = Commissions.create_commission(attrs)
+      assert {:ok, %Commission{} = c} = Commissions.create_commission(attrs)
+      assert c.customer == attrs.customer
+      assert c.type == attrs.type
+      assert c.status == attrs.status
+      assert c.deadline == attrs.deadline
     end
   end
 
-  describe "create_commission/1 with invalid data" do
-    test "returns error changeset" do
+  describe "create_commission/1 with invalid status" do
+    test "returns error changeset with invalid status" do
       attrs = %{
         customer: "test_user",
         type: "full_body",
-        status: "testing",
+        status: "invalid_status",
+        deadline: ~U[2026-12-31 00:00:00Z]
+      }
+      assert {:error, %Ecto.Changeset{}} = Commissions.create_commission(attrs)
+    end
+  end
+
+  describe "create_commission/1 with invalid type" do
+    test "returns error changeset with invalid type" do
+      attrs = %{
+        customer: "test_user",
+        type: "invalid_type",
+        status: "sketching",
+        deadline: ~U[2026-12-31 00:00:00Z]
+      }
+      assert {:error, %Ecto.Changeset{}} = Commissions.create_commission(attrs)
+    end
+  end
+
+  describe "create_commission/1 with missing required fields" do
+    test "returns error changeset with missing required fields" do
+      attrs = %{
+        type: "full_body",
+        status: "sketching",
         deadline: ~U[2026-12-31 00:00:00Z]
       }
       assert {:error, %Ecto.Changeset{}} = Commissions.create_commission(attrs)
@@ -72,19 +111,46 @@ defmodule Todo.CommissionsTest do
         deadline: ~U[2026-12-31 00:00:00Z]
       })
       update_attrs = %{status: "coloring"}
-      assert {:ok, %Commission{status: "coloring"}} = Commissions.update_commission(commission, update_attrs)
+      assert {:ok, %Commission{} = c} = Commissions.update_commission(commission, update_attrs)
+      assert c.status == update_attrs.status
     end
   end
 
-  describe "update_commission/2 with invalid data" do
-    test "returns error changeset" do
+  describe "update_commission/2 with invalid status" do
+    test "returns error changeset with invalid status" do
       {:ok, commission} = Repo.insert(%Commission{
         customer: "test_user",
         type: "full_body",
         status: "sketching",
         deadline: ~U[2026-12-31 00:00:00Z]
       })
-      update_attrs = %{status: "testing"}
+      update_attrs = %{status: "invalid_status"}
+      assert {:error, %Ecto.Changeset{}} = Commissions.update_commission(commission, update_attrs)
+    end
+  end
+
+  describe "update_commission/2 with invalid type" do
+    test "returns error changeset with invalid type" do
+      {:ok, commission} = Repo.insert(%Commission{
+        customer: "test_user",
+        type: "full_body",
+        status: "sketching",
+        deadline: ~U[2026-12-31 00:00:00Z]
+      })
+      update_attrs = %{type: "invalid_type"}
+      assert {:error, %Ecto.Changeset{}} = Commissions.update_commission(commission, update_attrs)
+    end
+  end
+
+  describe "update_commission/2 with missing required fields" do
+    test "returns error changeset with missing required fields" do
+      {:ok, commission} = Repo.insert(%Commission{
+        customer: "test_user",
+        type: "full_body",
+        status: "sketching",
+        deadline: ~U[2026-12-31 00:00:00Z]
+      })
+      update_attrs = %{customer: nil}
       assert {:error, %Ecto.Changeset{}} = Commissions.update_commission(commission, update_attrs)
     end
   end
