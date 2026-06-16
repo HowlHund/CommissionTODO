@@ -15,10 +15,6 @@ defmodule Todo.Commissions do
     end
   end
 
-  def get_commission!(id) do # this gets a single comm by it's uuid. ! means it will throw an error if it can't find one
-    Repo.get!(Commission, id)
-  end
-
   def create_commission(attrs \\ %{}) do #this uses %{} to give us an empty map for a commission slot
     %Commission{}
     |> Commission.changeset(attrs) #then sends it to changeset to validate the attributes

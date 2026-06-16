@@ -2,7 +2,7 @@ defmodule TodoWeb.CommissionController do
   use TodoWeb, :controller
   action_fallback TodoWeb.FallbackController
   alias Todo.Commissions
-
+  alias Todo.Emails
 
 
   def index(conn, _params) do
@@ -25,6 +25,7 @@ defmodule TodoWeb.CommissionController do
   def create(conn, params) do
     case Commissions.create_commission(params) do
       {:ok, commission} ->
+        Emails.send_email(commission.customer, "Your commission has been created.")
         conn
         |> put_status(:created)
         |> json(commission)
@@ -38,6 +39,7 @@ defmodule TodoWeb.CommissionController do
   def update(conn, params) do
     with {:ok, commission} <- Commissions.fetch_commission(params["id"]),
          {:ok, updated} <- Commissions.update_commission(commission, params) do
+          Emails.send_email(commission.customer, "Your commission has been updated.")
       json(conn, updated)
     else
       {:error, :not_found} ->
@@ -50,6 +52,7 @@ defmodule TodoWeb.CommissionController do
   def delete(conn, params) do
     with {:ok, commission} <- Commissions.fetch_commission(params["id"]),
         {:ok, _deleted} <- Commissions.delete_commission(commission) do
+          Emails.send_email(commission.customer, "Your commission has been deleted.")
       send_resp(conn, :no_content, "")
     else
       {:error, :not_found} ->
