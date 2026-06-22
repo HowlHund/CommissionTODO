@@ -25,3 +25,9 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 todo-*.tar
 
+# Python MCP server
+todo-mcp/.venv/
+todo-mcp/__pycache__/
+todo-mcp/*.pyc
+
+
